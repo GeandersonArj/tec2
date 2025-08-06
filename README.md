@@ -6,68 +6,67 @@
     <title>Relatório Técnico</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for better aesthetics and mobile responsiveness */
+        /* Estilos personalizados para melhor estética e responsividade móvel */
         html, body {
             margin: 0;
             padding: 0;
-            width: 100%; /* Ensure both take full width */
-            height: 100%; /* Ensure both take full height */
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
         }
 
         body {
             font-family: "Inter", sans-serif;
-            background-color: #f0f4f8; /* Light blue-gray background */
-            /* Removed display: flex, justify-content, align-items from body for block centering */
-            min-height: 100vh; /* Ensures body takes full viewport height */
-            padding: 20px; /* Padding around the main container */
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            padding: 20px;
             box-sizing: border-box;
         }
         .container {
             background-color: #ffffff;
-            border-radius: 16px; /* More rounded corners */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             padding: 24px;
             width: 100%;
-            max-width: 800px; /* Max width for desktop */
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            margin: 0 auto; /* This is the key for horizontal centering of the block element */
+            margin: 0 auto;
         }
         h1, h2 {
-            color: #1a202c; /* Darker text for headings */
+            color: #1a202c;
         }
-        input[type="text"], textarea {
+        input[type="text"], textarea, input[type="date"] {
             padding: 12px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             outline: none;
             transition: border-color 0.3s ease;
             width: 100%;
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            box-sizing: border-box;
         }
-        input[type="text"]:focus, textarea:focus {
-            border-color: #3b82f6; /* Blue focus border */
+        input[type="text"]:focus, textarea:focus, input[type="date"]:focus {
+            border-color: #3b82f6;
         }
         button {
-            background-color: #3b82f6; /* Blue button */
+            background-color: #3b82f6;
             color: white;
             padding: 12px 20px;
             border-radius: 12px;
             transition: background-color 0.3s ease, transform 0.1s ease;
             cursor: pointer;
-            flex-grow: 1; /* Allow buttons to grow */
+            flex-grow: 1;
         }
         button:hover {
-            background-color: #2563eb; /* Darker blue on hover */
-            transform: translateY(-1px); /* Slight lift effect */
+            background-color: #2563eb;
+            transform: translateY(-1px);
         }
         .section-card {
-            background-color: #f8fafc; /* Lighter background for sections */
+            background-color: #f8fafc;
             padding: 16px;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow for sections */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -87,13 +86,10 @@
         }
         .camera-controls video {
             width: 100%;
-            max-width: 400px; /* Max width for video stream */
+            max-width: 400px;
             height: auto;
             border-radius: 8px;
             background-color: #000;
-        }
-        .camera-controls canvas {
-            display: none; /* Canvas is hidden, used for capturing */
         }
         .photo-container {
             display: flex;
@@ -102,13 +98,13 @@
             gap: 10px;
             margin-top: 10px;
         }
-        .photo-preview {
+        .photo-canvas {
             width: 100%;
-            max-width: 300px; /* Max width for preview image */
+            max-width: 300px;
             height: auto;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            object-fit: cover;
+            background-color: #f8fafc;
         }
         .photo-comment {
             width: 100%;
@@ -116,19 +112,32 @@
             border: 1px solid #cbd5e0;
             border-radius: 8px;
             font-size: 0.9em;
-            resize: vertical; /* Allow vertical resizing */
+            resize: vertical;
         }
-        .remove-photo-button {
-            background-color: #ef4444; /* Red button for removal */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .remove-photo-button, .draw-arrow-button {
+            background-color: #ef4444;
             color: white;
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            width: 100%;
         }
         .remove-photo-button:hover {
-            background-color: #dc2626; /* Darker red on hover */
+            background-color: #dc2626;
         }
+        .draw-arrow-button {
+            background-color: #f97316;
+        }
+        .draw-arrow-button:hover {
+            background-color: #ea580c;
+        }
+        
         .message-box {
             position: fixed;
             top: 50%;
@@ -148,28 +157,21 @@
             display: block;
             opacity: 1;
         }
-        .loading-indicator {
-            display: none;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-            color: #3b82f6;
-        }
 
-        /* Styles for printing */
+        /* Estilos para impressão */
         @media print {
             html, body {
                 margin: 0;
                 padding: 0;
                 width: 100%;
-                height: auto; /* Auto height for print */
-                overflow: visible; /* Allow content to flow */
+                height: auto;
+                overflow: visible;
             }
             body {
                 background-color: #fff;
                 display: block;
                 min-height: auto;
-                padding: 0; /* Remove padding for print */
+                padding: 0;
             }
             .container {
                 box-shadow: none;
@@ -177,40 +179,39 @@
                 padding: 0;
                 max-width: none;
                 width: auto;
-                margin: 0; /* Remove auto margin for print */
+                margin: 0;
             }
             .no-print {
-                display: none !important; /* Ensure anything with no-print is hidden */
+                display: none !important;
             }
             .section-card {
                 box-shadow: none;
                 border: 1px solid #e2e8f0;
                 margin-bottom: 15px;
-                page-break-inside: avoid; /* Prevent breaking inside a section */
+                page-break-inside: avoid;
             }
-            .photo-preview {
-                max-width: 100% !important; /* Ensure images fit within print area */
-                display: block !important; /* Force display for print */
+            .photo-canvas {
+                max-width: 100% !important;
+                display: block !important;
+                border: none !important;
+                background-color: transparent !important;
             }
-            .photo-preview[src*="placehold.co"] { /* Hides placeholder image on print */
-                display: none !important;
-            }
-            .photo-container { /* Force photo container to display on print */
+            .photo-container {
                 display: block !important;
             }
             .photo-comment {
-                border: none !important; /* No border for comments in print */
+                border: none !important;
                 padding: 0 !important;
                 margin-top: 2px !important;
                 font-size: 0.8em !important;
-                display: block !important; /* Force display for print */
-                background-color: transparent !important; /* Ensure no background in print */
-                color: #000 !important; /* Ensure text is black */
-                resize: none !important; /* Disable resizing in print */
-                overflow: visible !important; /* Ensure all content is visible */
-                height: auto !important; /* Allow height to adjust to content */
+                display: block !important;
+                background-color: transparent !important;
+                color: #000 !important;
+                resize: none !important;
+                overflow: visible !important;
+                height: auto !important;
             }
-            textarea { /* General textarea style for print */
+            textarea {
                 border: none !important;
                 background-color: transparent !important;
                 color: #000 !important;
@@ -221,15 +222,15 @@
                 margin: 0 !important;
             }
             input[type="text"]::placeholder,
-            textarea::placeholder { /* Hides placeholder text on print */
+            textarea::placeholder {
                 color: transparent !important;
             }
         }
 
-        /* Responsive adjustments */
+        /* Ajustes de responsividade */
         @media (max-width: 640px) {
             body {
-                padding: 10px; /* Adjusted padding for smaller screens */
+                padding: 10px;
             }
             .container {
                 padding: 16px;
@@ -245,8 +246,11 @@
             .camera-controls video {
                 max-width: 100%;
             }
-            .photo-preview {
+            .photo-canvas {
                 max-width: 100%;
+            }
+            .action-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -256,9 +260,9 @@
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Relatório Técnico</h1>
 
         <div class="section-card">
-            <h2 class="text-2xl font-semibold text-gray-700"> Relatório</h2>
+            <h2 class="text-2xl font-semibold text-gray-700">Relatório</h2>
             <label for="reportTitle" class="text-gray-600">ID Máquina:</label>
-            <input type="text" id="reportTitle" placeholder="Ex: TE 50XX /O.M 2025xxx.../Horimetro" class="text-xl">
+            <input type="text" id="reportTitle" placeholder="Ex: TE 50XX /O.M 2025xxx/Horimetro" class="text-xl">
 
             <label for="reportDate" class="text-gray-600">Data:</label>
             <input type="date" id="reportDate" class="text-base">
@@ -272,18 +276,20 @@
             <textarea id="problemDescription" rows="5" placeholder="Descreva o problema, a situação ou o objetivo do relatório..." class="text-base"></textarea>
             <div class="camera-controls no-print">
                 <div class="camera-buttons-row">
-                    <button class="take-photo-button" data-target-video="videoProblem" data-target-canvas="canvasProblem" data-target-img="imgProblem" data-target-comment="commentProblem" data-target-container="photoContainerProblem">Tirar Foto</button>
-                    <input type="file" id="fileInputProblem" accept="image/*" class="hidden" data-target-img="imgProblem" data-target-comment="commentProblem" data-target-container="photoContainerProblem">
+                    <button class="take-photo-button" data-target-video="videoProblem" data-target-canvas="canvasProblem" data-target-container="photoContainerProblem">Tirar Foto</button>
+                    <input type="file" id="fileInputProblem" accept="image/*" class="hidden" data-target-canvas="canvasProblem" data-target-container="photoContainerProblem">
                     <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-target-input="fileInputProblem">Adicionar Arquivo</button>
                 </div>
                 <video id="videoProblem" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
-                <canvas id="canvasProblem" class="hidden"></canvas>
-                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoProblem" data-canvas-id="canvasProblem" data-img-id="imgProblem" data-comment-id="commentProblem" data-target-container="photoContainerProblem">Capturar Foto</button>
+                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoProblem" data-canvas-id="canvasProblem" data-target-container="photoContainerProblem">Capturar Foto</button>
             </div>
             <div id="photoContainerProblem" class="photo-container hidden">
-                <img id="imgProblem" class="photo-preview" alt="Foto da Descrição" src="https://placehold.co/300x200/e2e8f0/64748b?text=Sem+Foto">
+                <canvas id="canvasProblem" class="photo-canvas"></canvas>
                 <textarea id="commentProblem" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
-                <button class="remove-photo-button no-print" data-target-img="imgProblem" data-target-comment="commentProblem" data-target-container="photoContainerProblem">Remover Foto</button>
+                <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                    <button class="draw-arrow-button" data-canvas-id="canvasProblem">Desenhar Seta</button>
+                    <button class="remove-photo-button" data-target-canvas="canvasProblem" data-target-comment="commentProblem" data-target-container="photoContainerProblem">Remover Foto</button>
+                </div>
             </div>
         </div>
 
@@ -303,46 +309,45 @@
             <textarea id="additionalObservations" rows="5" placeholder="Adicione quaisquer observações relevantes as Pendências e os Executantes..." class="text-base"></textarea>
             <div class="camera-controls no-print">
                 <div class="camera-buttons-row">
-                    <button class="take-photo-button" data-target-video="videoObservations" data-target-canvas="canvasObservations" data-target-img="imgObservations" data-target-comment="commentObservations" data-target-container="photoContainerObservations">Tirar Foto</button>
-                    <input type="file" id="fileInputObservations" accept="image/*" class="hidden" data-target-img="imgObservations" data-target-comment="commentObservations" data-target-container="photoContainerObservations">
+                    <button class="take-photo-button" data-target-video="videoObservations" data-target-canvas="canvasObservations" data-target-container="photoContainerObservations">Tirar Foto</button>
+                    <input type="file" id="fileInputObservations" accept="image/*" class="hidden" data-target-canvas="canvasObservations" data-target-container="photoContainerObservations">
                     <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-target-input="fileInputObservations">Adicionar Arquivo</button>
                 </div>
                 <video id="videoObservations" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
-                <canvas id="canvasObservations" class="hidden"></canvas>
-                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoObservations" data-canvas-id="canvasObservations" data-img-id="imgObservations" data-comment-id="commentObservations" data-target-container="photoContainerObservations">Capturar Foto</button>
+                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoObservations" data-canvas-id="canvasObservations" data-target-container="photoContainerObservations">Capturar Foto</button>
             </div>
             <div id="photoContainerObservations" class="photo-container hidden">
-                <img id="imgObservations" class="photo-preview" alt="Foto de Observações" src="https://placehold.co/300x200/e2e8f0/64748b?text=Sem+Foto">
+                <canvas id="canvasObservations" class="photo-canvas"></canvas>
                 <textarea id="commentObservations" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
-                <button class="remove-photo-button no-print" data-target-img="imgObservations" data-target-comment="commentObservations" data-target-container="photoContainerObservations">Remover Foto</button>
+                <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                    <button class="draw-arrow-button" data-canvas-id="canvasObservations">Desenhar Seta</button>
+                    <button class="remove-photo-button" data-target-canvas="canvasObservations" data-target-comment="commentObservations" data-target-container="photoContainerObservations">Remover Foto</button>
+                </div>
             </div>
         </div>
 
         <button id="generateReportButton" class="bg-blue-500 text-white p-3 rounded-xl hover:bg-blue-600 transition-all duration-300 shadow-md mt-4 no-print">Gerar Relatório (Imprimir/PDF)</button>
     </div>
-
+    
     <div id="messageBox" class="message-box"></div>
 
     <script>
-        let currentStream = null; // To hold the active camera stream
-        let activeVideoElement = null; // To track the currently active video element
-        let activeCanvasElement = null; // To track the currently active canvas element
-        let activeImageElement = null; // To track the currently active image element
-        let activeCaptureButton = null; // To track the currently active capture button
-        let activeCommentElement = null; // To track the currently active comment element
+        let currentStream = null;
+        let activeVideoElement = null;
+        let activeCanvasElement = null;
+        let activeCaptureButton = null;
+        let isDrawingArrow = false;
+        let startPoint = {};
 
         const messageBox = document.getElementById('messageBox');
-        const defaultPlaceholder = "https://placehold.co/300x200/e2e8f0/64748b?text=Sem+Foto";
         
-        let photoCount = 0; // Counter for photos in section 2
-        const maxPhotos = 20; // Maximum number of photos allowed
+        let photoCount = 0;
+        const maxPhotos = 20;
         const solutionPhotosContainer = document.getElementById('solutionPhotosContainer');
         const addSolutionPhotoButton = document.getElementById('addSolutionPhotoButton');
 
         /**
-         * Displays a temporary message box with the given text.
-         * @param {string} message - The message to display.
-         * @param {number} duration - The duration in milliseconds to show the message.
+         * Exibe uma caixa de mensagem temporária com o texto fornecido.
          */
         function showMessageBox(message, duration = 3000) {
             messageBox.textContent = message;
@@ -353,7 +358,7 @@
         }
 
         /**
-         * Stops the current camera stream if active and hides associated elements.
+         * Para o stream da câmera se estiver ativo e esconde os elementos associados.
          */
         function stopCameraStream() {
             if (currentStream) {
@@ -369,112 +374,117 @@
                 activeCaptureButton.style.display = 'none';
                 activeCaptureButton = null;
             }
-            // Reset active elements related to camera/file input
-            activeCanvasElement = null;
-            activeImageElement = null;
-            activeCommentElement = null;
+        }
+        
+        /**
+         * Desenha a seta com a ponta em um canvas.
+         * @param {CanvasRenderingContext2D} ctx - O contexto 2D do canvas.
+         * @param {number} fromX - Coordenada X inicial.
+         * @param {number} fromY - Coordenada Y inicial.
+         * @param {number} toX - Coordenada X final.
+         * @param {number} toY - Coordenada Y final.
+         */
+        function drawArrow(ctx, fromX, fromY, toX, toY) {
+            const headlen = 15; // Comprimento da ponta da seta
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            
+            ctx.strokeStyle = '#ef4444'; // Cor da seta (vermelho)
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+
+            // Desenha a ponta da seta
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
         }
 
         /**
-         * Initializes camera access for a specific section.
-         * @param {HTMLVideoElement} videoElement - The video element to display the stream.
-         * @param {HTMLCanvasElement} canvasElement - The canvas element for capturing.
-         * @param {HTMLImageElement} imageElement - The image element to display the captured photo.
-         * @param {HTMLButtonElement} captureButton - The capture button for this section.
-         * @param {HTMLTextAreaElement} commentElement - The textarea element for comments.
-         * @param {HTMLElement} photoContainer - The container for the photo and comment elements.
+         * Inicializa o acesso à câmera para uma seção específica.
          */
-        async function startCamera(videoElement, canvasElement, imageElement, captureButton, commentElement, photoContainer) {
-            // Stop any previously active camera stream or file input view
+        async function startCamera(videoElement, canvasElement, captureButton, photoContainer) {
             stopCameraStream();
-
             activeVideoElement = videoElement;
             activeCanvasElement = canvasElement;
-            activeImageElement = imageElement;
             activeCaptureButton = captureButton;
-            activeCommentElement = commentElement; // Set active comment element
 
-            // Hide the photo container if starting camera
             photoContainer.classList.add('hidden');
+            activeVideoElement.classList.remove('hidden');
+            activeCaptureButton.classList.remove('hidden');
 
-            activeVideoElement.classList.remove('hidden'); // Show video element
-            activeCaptureButton.classList.remove('hidden'); // Show capture button
-
-            const constraints = {
-                video: {
-                    // Try to get the environment (rear) camera first
-                    facingMode: { exact: "environment" }
-                }
-            };
+            const constraints = { video: { facingMode: { exact: "environment" } } };
 
             try {
-                // Attempt to get the environment camera
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 activeVideoElement.srcObject = currentStream;
                 activeVideoElement.play();
             } catch (err) {
-                console.warn("Failed to get environment camera, trying user camera:", err);
-                // If environment camera fails, try the user (front) camera
+                console.warn("Falha ao obter câmera ambiente, tentando câmera frontal:", err);
                 constraints.video.facingMode = "user";
                 try {
                     currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                     activeVideoElement.srcObject = currentStream;
                     activeVideoElement.play();
                 } catch (userErr) {
-                    console.error("Error accessing any camera: ", userErr);
+                    console.error("Erro ao acessar qualquer câmera: ", userErr);
                     showMessageBox('Não foi possível acessar a câmera. Verifique as permissões.');
                     activeVideoElement.classList.add('hidden');
                     activeCaptureButton.classList.add('hidden');
-                    stopCameraStream(); // Ensure all related elements are hidden
+                    stopCameraStream();
                 }
             }
         }
-
+        
         /**
-         * Sets up event listeners for a new photo section.
-         * @param {string} uniqueId - The unique ID for the new section.
+         * Configura os event listeners para uma nova seção de foto dinâmica.
+         * @param {string} uniqueId - O ID único para a nova seção.
          */
         function setupPhotoSectionListeners(uniqueId) {
             const takePhotoButton = document.querySelector(`.take-photo-button[data-id="${uniqueId}"]`);
             const addFileButton = document.querySelector(`.add-file-button[data-id="${uniqueId}"]`);
             const captureButton = document.querySelector(`.capture-button[data-id="${uniqueId}"]`);
             const removePhotoButton = document.querySelector(`.remove-photo-button[data-id="${uniqueId}"]`);
-            const fileInput = document.getElementById(`fileInputSolution${uniqueId}`);
+            const drawArrowButton = document.querySelector(`.draw-arrow-button[data-id="${uniqueId}"]`);
             
-            // "Tirar Foto" button listener
+            const fileInput = document.getElementById(`fileInputSolution${uniqueId}`);
+            const canvasElement = document.getElementById(`canvasSolution${uniqueId}`);
+            const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
+            const originalImage = new Image();
+
+            // Listener para o botão "Tirar Foto"
             takePhotoButton.addEventListener('click', () => {
                 const video = document.getElementById(`videoSolution${uniqueId}`);
                 const canvas = document.getElementById(`canvasSolution${uniqueId}`);
-                const img = document.getElementById(`imgSolution${uniqueId}`);
-                const comment = document.getElementById(`commentSolution${uniqueId}`);
-                const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
-                startCamera(video, canvas, img, captureButton, comment, photoContainer);
+                startCamera(video, canvas, captureButton, photoContainer);
             });
 
-            // "Adicionar Arquivo" button listener
+            // Listener para o botão "Adicionar Arquivo"
             addFileButton.addEventListener('click', () => {
                 if (fileInput) {
-                    stopCameraStream(); // Stop camera if active
-                    fileInput.click(); // Programmatically click the hidden file input
+                    stopCameraStream();
+                    fileInput.click();
                 }
             });
 
-            // "Capturar Foto" button listener
+            // Listener para o botão "Capturar Foto"
             captureButton.addEventListener('click', () => {
                 const video = document.getElementById(`videoSolution${uniqueId}`);
                 const canvas = document.getElementById(`canvasSolution${uniqueId}`);
-                const img = document.getElementById(`imgSolution${uniqueId}`);
-                const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
                 
                 if (video && currentStream) {
-                    const context = canvas.getContext('2d');
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
+                    const context = canvas.getContext('2d');
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    const imageDataURL = canvas.toDataURL('image/png');
-                    img.src = imageDataURL;
                     
+                    originalImage.src = canvas.toDataURL(); // Salva a imagem original
                     photoContainer.classList.remove('hidden');
                     stopCameraStream();
                     showMessageBox('Foto capturada!');
@@ -483,31 +493,21 @@
                 }
             });
 
-            // "Remover Foto" button listener
-            removePhotoButton.addEventListener('click', () => {
-                const photoBlock = document.getElementById(`photoBlock${uniqueId}`);
-                if (photoBlock) {
-                    photoBlock.remove();
-                    photoCount--;
-                    // Enable the add button if we are no longer at the max limit
-                    addSolutionPhotoButton.disabled = false;
-                    addSolutionPhotoButton.textContent = `Adicionar Foto (${photoCount}/${maxPhotos})`;
-                    showMessageBox('Foto removida!');
-                }
-            });
-
-            // Hidden file input listener
+            // Listener para o input de arquivo oculto
             fileInput.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    const imgElement = document.getElementById(`imgSolution${uniqueId}`);
-                    const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        if (imgElement) {
-                            imgElement.src = e.target.result;
+                        originalImage.onload = () => {
+                            canvasElement.width = originalImage.width;
+                            canvasElement.height = originalImage.height;
+                            const ctx = canvasElement.getContext('2d');
+                            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                            ctx.drawImage(originalImage, 0, 0);
                             photoContainer.classList.remove('hidden');
-                        }
+                        };
+                        originalImage.src = e.target.result;
                         showMessageBox('Arquivo adicionado!');
                     };
                     reader.readAsDataURL(file);
@@ -515,16 +515,74 @@
                     showMessageBox('Nenhum arquivo selecionado.');
                 }
             });
+
+            // Lógica de desenho de seta para o canvas
+            drawArrowButton.addEventListener('click', () => {
+                isDrawingArrow = true;
+                showMessageBox('Modo de desenho de seta ativado. Clique e arraste na foto!');
+                canvasElement.style.cursor = 'crosshair';
+            });
+
+            canvasElement.addEventListener('mousedown', (e) => {
+                if (!isDrawingArrow) return;
+                const rect = canvasElement.getBoundingClientRect();
+                const scaleX = canvasElement.width / rect.width;
+                const scaleY = canvasElement.height / rect.height;
+                startPoint = { 
+                    x: (e.clientX - rect.left) * scaleX, 
+                    y: (e.clientY - rect.top) * scaleY 
+                };
+            });
+
+            canvasElement.addEventListener('mouseup', (e) => {
+                if (!isDrawingArrow) return;
+                const rect = canvasElement.getBoundingClientRect();
+                const scaleX = canvasElement.width / rect.width;
+                const scaleY = canvasElement.height / rect.height;
+                const endX = (e.clientX - rect.left) * scaleX;
+                const endY = (e.clientY - rect.top) * scaleY;
+
+                const ctx = canvasElement.getContext('2d');
+                drawArrow(ctx, startPoint.x, startPoint.y, endX, endY);
+                isDrawingArrow = false;
+                canvasElement.style.cursor = 'default';
+                showMessageBox('Seta desenhada!');
+            });
+            
+            // Listener para o botão "Remover Foto"
+            removePhotoButton.addEventListener('click', () => {
+                const photoBlock = document.getElementById(`photoBlock${uniqueId}`);
+                if (photoBlock) {
+                    photoBlock.remove();
+                    photoCount--;
+                    addSolutionPhotoButton.disabled = false;
+                    addSolutionPhotoButton.textContent = `Adicionar Foto (${photoCount}/${maxPhotos})`;
+                    showMessageBox('Foto removida!');
+                }
+            });
+        }
+        
+        // Função para carregar uma imagem no canvas
+        function loadImageToCanvas(canvasElement, imageURL, photoContainer) {
+            const img = new Image();
+            img.onload = () => {
+                canvasElement.width = img.width;
+                canvasElement.height = img.height;
+                const ctx = canvasElement.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                photoContainer.classList.remove('hidden');
+            };
+            img.src = imageURL;
         }
 
-        // Main event listener for "Adicionar Foto" button in section 2
+        // Listener principal para o botão "Adicionar Foto" na seção 2
         addSolutionPhotoButton.addEventListener('click', () => {
             if (photoCount < maxPhotos) {
                 photoCount++;
                 const uniqueId = `SolutionPhoto${photoCount}`;
 
                 const photoBlockHTML = `
-                    <div id="photoBlock${uniqueId}" class="photo-block">
+                    <div id="photoBlock${uniqueId}" class="photo-block section-card">
                         <div class="camera-controls no-print">
                             <div class="camera-buttons-row">
                                 <button class="take-photo-button" data-id="${uniqueId}">Tirar Foto ${photoCount}</button>
@@ -532,13 +590,15 @@
                                 <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-id="${uniqueId}">Adicionar Arquivo ${photoCount}</button>
                             </div>
                             <video id="videoSolution${uniqueId}" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
-                            <canvas id="canvasSolution${uniqueId}" class="hidden"></canvas>
                             <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-id="${uniqueId}">Capturar Foto</button>
                         </div>
                         <div id="photoContainerSolution${uniqueId}" class="photo-container hidden">
-                            <img id="imgSolution${uniqueId}" class="photo-preview" alt="Foto da Solução ${photoCount}" src="https://placehold.co/300x200/e2e8f0/64748b?text=Sem+Foto">
+                            <canvas id="canvasSolution${uniqueId}" class="photo-canvas"></canvas>
                             <textarea id="commentSolution${uniqueId}" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
-                            <button class="remove-photo-button no-print" data-id="${uniqueId}">Remover Foto</button>
+                            <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                                <button class="draw-arrow-button" data-canvas-id="canvasSolution${uniqueId}" data-id="${uniqueId}">Desenhar Seta</button>
+                                <button class="remove-photo-button" data-target-canvas="canvasSolution${uniqueId}" data-target-comment="commentSolution${uniqueId}" data-target-container="photoContainerSolution${uniqueId}" data-id="${uniqueId}">Remover Foto</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -557,49 +617,45 @@
         });
 
 
-        // Event listeners for static photo sections (problem and observations)
+        // Listeners gerais para as seções de foto estáticas (problema e observações)
         document.querySelectorAll('.take-photo-button').forEach(button => {
-            if (!button.dataset.id) { // Only for static buttons
+            if (!button.dataset.id) {
                 button.addEventListener('click', (event) => {
                     const targetVideoId = event.target.dataset.targetVideo;
                     const targetCanvasId = event.target.dataset.targetCanvas;
-                    const targetImgId = event.target.dataset.targetImg;
-                    const targetCommentId = event.target.dataset.targetComment;
                     const targetContainerId = event.target.dataset.targetContainer;
 
                     const video = document.getElementById(targetVideoId);
                     const canvas = document.getElementById(targetCanvasId);
-                    const img = document.getElementById(targetImgId);
                     const captureBtn = document.querySelector(`.capture-button[data-video-id="${targetVideoId}"]`);
-                    const comment = document.getElementById(targetCommentId);
                     const photoContainer = document.getElementById(targetContainerId);
 
-                    startCamera(video, canvas, img, captureBtn, comment, photoContainer);
+                    startCamera(video, canvas, captureBtn, photoContainer);
                 });
             }
         });
 
         document.querySelectorAll('.capture-button').forEach(button => {
-            if (!button.dataset.id) { // Only for static buttons
+            if (!button.dataset.id) {
                 button.addEventListener('click', (event) => {
                     if (activeVideoElement && currentStream) {
                         const targetVideoId = event.target.dataset.videoId;
                         const targetCanvasId = event.target.dataset.canvasId;
-                        const targetImgId = event.target.dataset.imgId;
                         const targetContainerId = event.target.dataset.targetContainer;
 
                         const video = document.getElementById(targetVideoId);
                         const canvas = document.getElementById(targetCanvasId);
-                        const img = document.getElementById(targetImgId);
                         const photoContainer = document.getElementById(targetContainerId);
 
                         const context = canvas.getContext('2d');
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                        const imageDataURL = canvas.toDataURL('image/png');
-                        img.src = imageDataURL;
+                        
+                        // Salva a imagem original para redesenho futuro (se necessário)
+                        const originalImage = new Image();
+                        originalImage.src = canvas.toDataURL();
+                        canvas.originalImage = originalImage;
                         
                         photoContainer.classList.remove('hidden');
                         stopCameraStream();
@@ -610,39 +666,43 @@
                 });
             }
         });
-
-        // Event listeners for "Adicionar Arquivo" buttons
+        
         document.querySelectorAll('.add-file-button').forEach(button => {
-            if (!button.dataset.id) { // Only for static buttons
+            if (!button.dataset.id) {
                 button.addEventListener('click', (event) => {
                     const targetInputId = event.target.dataset.targetInput;
                     const fileInput = document.getElementById(targetInputId);
                     if (fileInput) {
-                        stopCameraStream(); // Stop camera if active
-                        fileInput.click(); // Programmatically click the hidden file input
+                        stopCameraStream();
+                        fileInput.click();
                     }
                 });
             }
         });
 
-        // Event listeners for hidden file inputs (static)
         document.querySelectorAll('input[type="file"]').forEach(input => {
-            if (!input.dataset.id) { // Only for static inputs
+            if (!input.dataset.id) {
                 input.addEventListener('change', (event) => {
                     const file = event.target.files[0];
                     if (file) {
-                        const targetImgId = event.target.dataset.targetImg;
+                        const targetCanvasId = event.target.dataset.targetCanvas;
                         const targetContainerId = event.target.dataset.targetContainer;
-
-                        const imgElement = document.getElementById(targetImgId);
+                        const canvasElement = document.getElementById(targetCanvasId);
                         const photoContainer = document.getElementById(targetContainerId);
 
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            if (imgElement) {
-                                imgElement.src = e.target.result;
+                            const originalImage = new Image();
+                            originalImage.onload = () => {
+                                canvasElement.width = originalImage.width;
+                                canvasElement.height = originalImage.height;
+                                const ctx = canvasElement.getContext('2d');
+                                ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                                ctx.drawImage(originalImage, 0, 0);
+                                canvasElement.originalImage = originalImage; // Salva a imagem original no canvas
                                 photoContainer.classList.remove('hidden');
-                            }
+                            };
+                            originalImage.src = e.target.result;
                             showMessageBox('Arquivo adicionado!');
                         };
                         reader.readAsDataURL(file);
@@ -652,20 +712,62 @@
                 });
             }
         });
+        
+        document.querySelectorAll('.draw-arrow-button').forEach(button => {
+            if (!button.dataset.id) {
+                const canvasId = button.dataset.canvasId;
+                const canvas = document.getElementById(canvasId);
+                let startPoint = {};
 
-        // Event listeners for "Remover Foto" buttons (static sections)
+                button.addEventListener('click', () => {
+                    isDrawingArrow = !isDrawingArrow;
+                    if (isDrawingArrow) {
+                        showMessageBox('Modo de desenho de seta ativado. Clique e arraste na foto!');
+                        canvas.style.cursor = 'crosshair';
+                    } else {
+                        showMessageBox('Modo de desenho de seta desativado.');
+                        canvas.style.cursor = 'default';
+                    }
+                });
+
+                canvas.addEventListener('mousedown', (e) => {
+                    if (!isDrawingArrow) return;
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    startPoint = { 
+                        x: (e.clientX - rect.left) * scaleX, 
+                        y: (e.clientY - rect.top) * scaleY 
+                    };
+                });
+
+                canvas.addEventListener('mouseup', (e) => {
+                    if (!isDrawingArrow) return;
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const endX = (e.clientX - rect.left) * scaleX;
+                    const endY = (e.clientY - rect.top) * scaleY;
+
+                    const ctx = canvas.getContext('2d');
+                    drawArrow(ctx, startPoint.x, startPoint.y, endX, endY);
+                });
+            }
+        });
+
         document.querySelectorAll('.remove-photo-button').forEach(button => {
-            if (!button.dataset.id) { // Only for static buttons
+            if (!button.dataset.id) {
                 button.addEventListener('click', (event) => {
-                    const targetImgId = event.target.dataset.targetImg;
+                    const targetCanvasId = event.target.dataset.targetCanvas;
                     const targetCommentId = event.target.dataset.targetComment;
                     const targetContainerId = event.target.dataset.targetContainer;
 
-                    const imgElement = document.getElementById(targetImgId);
+                    const canvasElement = document.getElementById(targetCanvasId);
                     const commentElement = document.getElementById(targetCommentId);
                     const photoContainer = document.getElementById(targetContainerId);
-
-                    imgElement.src = defaultPlaceholder;
+                    
+                    const ctx = canvasElement.getContext('2d');
+                    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                     commentElement.value = '';
                     photoContainer.classList.add('hidden');
                     showMessageBox('Foto removida!');
@@ -673,17 +775,15 @@
             }
         });
 
-        // Event listener for Generate Report button
         document.getElementById('generateReportButton').addEventListener('click', () => {
-            stopCameraStream(); // Ensure camera is off before printing
-            window.print(); // Triggers the browser's print dialog
+            stopCameraStream();
+            window.print();
         });
 
-        // Set current date on load
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             document.getElementById('reportDate').value = `${year}-${month}-${day}`;
         });

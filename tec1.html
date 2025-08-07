@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Técnico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para melhor estética e responsividade móvel */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #1a202c;
+        }
+        input[type="text"], textarea, input[type="date"] {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, textarea:focus, input[type="date"]:focus {
+            border-color: #3b82f6;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+        button:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        .section-card {
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .camera-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .camera-buttons-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .camera-controls video {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+            background-color: #000;
+        }
+        .photo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .photo-canvas {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .photo-comment {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .remove-photo-button, .draw-arrow-button {
+            background-color: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        .remove-photo-button:hover {
+            background-color: #dc2626;
+        }
+        .draw-arrow-button {
+            background-color: #f97316;
+        }
+        .draw-arrow-button:hover {
+            background-color: #ea580c;
+        }
+        
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            text-align: center;
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Estilos para impressão */
+        @media print {
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: auto;
+                overflow: visible;
+            }
+            body {
+                background-color: #fff;
+                display: block;
+                min-height: auto;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: none;
+                width: auto;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .section-card {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 15px;
+                page-break-inside: avoid;
+            }
+            .photo-canvas {
+                max-width: 100% !important;
+                display: block !important;
+                border: none !important;
+                background-color: transparent !important;
+            }
+            .photo-container {
+                display: block !important;
+            }
+            .photo-comment {
+                border: none !important;
+                padding: 0 !important;
+                margin-top: 2px !important;
+                font-size: 0.8em !important;
+                display: block !important;
+                background-color: transparent !important;
+                color: #000 !important;
+                resize: none !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            textarea {
+                border: none !important;
+                background-color: transparent !important;
+                color: #000 !important;
+                resize: none !important;
+                overflow: visible !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            input[type="text"]::placeholder,
+            textarea::placeholder {
+                color: transparent !important;
+            }
+        }
+
+        /* Ajustes de responsividade */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 16px;
+                gap: 15px;
+            }
+            button {
+                width: 100%;
+            }
+            .camera-buttons-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .camera-controls video {
+                max-width: 100%;
+            }
+            .photo-canvas {
+                max-width: 100%;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Relatório Técnico</h1>
+
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-700">Relatório</h2>
+            <label for="reportTitle" class="text-gray-600">ID Máquina:</label>
+            <input type="text" id="reportTitle" placeholder="Ex: TE 50XX /O.M 2025xxx/Horimetro" class="text-xl">
+
+            <label for="reportDate" class="text-gray-600">Data:</label>
+            <input type="date" id="reportDate" class="text-base">
+
+            <label for="reportAuthor" class="text-gray-600">Autor:</label>
+            <input type="text" id="reportAuthor" placeholder="Seu Nome" class="text-base">
+        </div>
+
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-700">1. Descrição</h2>
+            <textarea id="problemDescription" rows="5" placeholder="Descreva o problema, a situação ou o objetivo do relatório..." class="text-base"></textarea>
+            <div class="camera-controls no-print">
+                <div class="camera-buttons-row">
+                    <button class="take-photo-button" data-target-video="videoProblem" data-target-canvas="canvasProblem" data-target-container="photoContainerProblem">Tirar Foto</button>
+                    <input type="file" id="fileInputProblem" accept="image/*" class="hidden" data-target-canvas="canvasProblem" data-target-container="photoContainerProblem">
+                    <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-target-input="fileInputProblem">Adicionar Arquivo</button>
+                </div>
+                <video id="videoProblem" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
+                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoProblem" data-canvas-id="canvasProblem" data-target-container="photoContainerProblem">Capturar Foto</button>
+            </div>
+            <div id="photoContainerProblem" class="photo-container hidden">
+                <canvas id="canvasProblem" class="photo-canvas"></canvas>
+                <textarea id="commentProblem" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
+                <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                    <button class="draw-arrow-button" data-canvas-id="canvasProblem">Desenhar Seta</button>
+                    <button class="remove-photo-button" data-target-canvas="canvasProblem" data-target-comment="commentProblem" data-target-container="photoContainerProblem">Remover Foto</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-700">2. Ações Realizadas/Solução</h2>
+            <textarea id="solutionProposed" rows="5" placeholder="Descreva as ações realizadas, a solução implementada ou os resultados..." class="text-base"></textarea>
+            <div id="solutionPhotosContainer">
+                <!-- Novos blocos de foto serão inseridos dinamicamente aqui -->
+            </div>
+            <div class="no-print">
+                <button id="addSolutionPhotoButton" class="bg-blue-500 hover:bg-blue-600 w-full">Adicionar Foto</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-700">3. Observações/Pendências/Executantes</h2>
+            <textarea id="additionalObservations" rows="5" placeholder="Adicione quaisquer observações relevantes as Pendências e os Executantes..." class="text-base"></textarea>
+            <div class="camera-controls no-print">
+                <div class="camera-buttons-row">
+                    <button class="take-photo-button" data-target-video="videoObservations" data-target-canvas="canvasObservations" data-target-container="photoContainerObservations">Tirar Foto</button>
+                    <input type="file" id="fileInputObservations" accept="image/*" class="hidden" data-target-canvas="canvasObservations" data-target-container="photoContainerObservations">
+                    <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-target-input="fileInputObservations">Adicionar Arquivo</button>
+                </div>
+                <video id="videoObservations" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
+                <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-video-id="videoObservations" data-canvas-id="canvasObservations" data-target-container="photoContainerObservations">Capturar Foto</button>
+            </div>
+            <div id="photoContainerObservations" class="photo-container hidden">
+                <canvas id="canvasObservations" class="photo-canvas"></canvas>
+                <textarea id="commentObservations" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
+                <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                    <button class="draw-arrow-button" data-canvas-id="canvasObservations">Desenhar Seta</button>
+                    <button class="remove-photo-button" data-target-canvas="canvasObservations" data-target-comment="commentObservations" data-target-container="photoContainerObservations">Remover Foto</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="generateReportButton" class="bg-blue-500 text-white p-3 rounded-xl hover:bg-blue-600 transition-all duration-300 shadow-md mt-4 no-print">Gerar Relatório (Imprimir/PDF)</button>
+    </div>
+    
+    <div id="messageBox" class="message-box"></div>
+
+    <script>
+        let currentStream = null;
+        let activeVideoElement = null;
+        let activeCanvasElement = null;
+        let activeCaptureButton = null;
+        let isDrawingArrow = false;
+        let startPoint = {};
+
+        const messageBox = document.getElementById('messageBox');
+        
+        let photoCount = 0;
+        const maxPhotos = 20;
+        const solutionPhotosContainer = document.getElementById('solutionPhotosContainer');
+        const addSolutionPhotoButton = document.getElementById('addSolutionPhotoButton');
+
+        /**
+         * Exibe uma caixa de mensagem temporária com o texto fornecido.
+         */
+        function showMessageBox(message, duration = 3000) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        /**
+         * Para o stream da câmera se estiver ativo e esconde os elementos associados.
+         */
+        function stopCameraStream() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            if (activeVideoElement) {
+                activeVideoElement.style.display = 'none';
+                activeVideoElement.srcObject = null;
+                activeVideoElement = null;
+            }
+            if (activeCaptureButton) {
+                activeCaptureButton.style.display = 'none';
+                activeCaptureButton = null;
+            }
+        }
+        
+        /**
+         * Desenha a seta com a ponta em um canvas.
+         * @param {CanvasRenderingContext2D} ctx - O contexto 2D do canvas.
+         * @param {number} fromX - Coordenada X inicial.
+         * @param {number} fromY - Coordenada Y inicial.
+         * @param {number} toX - Coordenada X final.
+         * @param {number} toY - Coordenada Y final.
+         */
+        function drawArrow(ctx, fromX, fromY, toX, toY) {
+            // Nova lógica para garantir que a ponta da seta seja sempre visível e não coberta pela linha.
+            const headlen = 80; // Tamanho da ponta da seta (dobrado)
+            const lineWidth = 20; // Espessura da linha
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+
+            // Calcula o ponto final da linha (antes da ponta da seta) para evitar sobreposição
+            const lineEndX = toX - (lineWidth * 0.5 * Math.cos(angle));
+            const lineEndY = toY - (lineWidth * 0.5 * Math.sin(angle));
+
+            // Desenha a linha principal
+            ctx.strokeStyle = '#ef4444'; // Cor da seta (vermelho)
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(lineEndX, lineEndY);
+            ctx.stroke();
+
+            // Desenha a ponta da seta como um triângulo preenchido
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            // Pontos da base do triângulo, calculados para ficarem na frente da linha
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 7), toY - headlen * Math.sin(angle - Math.PI / 7));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 7), toY - headlen * Math.sin(angle + Math.PI / 7));
+            ctx.closePath();
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+        }
+
+        /**
+         * Obtém as coordenadas X e Y de um evento (mouse ou toque).
+         * @param {Event} e - O evento de mouse ou toque.
+         * @param {HTMLCanvasElement} canvas - O elemento canvas.
+         * @returns {{x: number, y: number}} As coordenadas.
+         */
+        function getEventCoords(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        /**
+         * Inicializa o acesso à câmera para uma seção específica.
+         */
+        async function startCamera(videoElement, canvasElement, captureButton, photoContainer) {
+            stopCameraStream();
+            activeVideoElement = videoElement;
+            activeCanvasElement = canvasElement;
+            activeCaptureButton = captureButton;
+
+            photoContainer.classList.add('hidden');
+            activeVideoElement.classList.remove('hidden');
+            activeCaptureButton.classList.remove('hidden');
+
+            const constraints = { video: { facingMode: { exact: "environment" } } };
+
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                activeVideoElement.srcObject = currentStream;
+                activeVideoElement.play();
+            } catch (err) {
+                console.warn("Falha ao obter câmera ambiente, tentando câmera frontal:", err);
+                constraints.video.facingMode = "user";
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    activeVideoElement.srcObject = currentStream;
+                    activeVideoElement.play();
+                } catch (userErr) {
+                    console.error("Erro ao acessar qualquer câmera: ", userErr);
+                    showMessageBox('Não foi possível acessar a câmera. Verifique as permissões.');
+                    activeVideoElement.classList.add('hidden');
+                    activeCaptureButton.classList.add('hidden');
+                    stopCameraStream();
+                }
+            }
+        }
+        
+        /**
+         * Configura os event listeners para uma nova seção de foto dinâmica.
+         * @param {string} uniqueId - O ID único para a nova seção.
+         */
+        function setupPhotoSectionListeners(uniqueId) {
+            const takePhotoButton = document.querySelector(`.take-photo-button[data-id="${uniqueId}"]`);
+            const addFileButton = document.querySelector(`.add-file-button[data-id="${uniqueId}"]`);
+            const captureButton = document.querySelector(`.capture-button[data-id="${uniqueId}"]`);
+            const removePhotoButton = document.querySelector(`.remove-photo-button[data-id="${uniqueId}"]`);
+            const drawArrowButton = document.querySelector(`.draw-arrow-button[data-id="${uniqueId}"]`);
+            
+            const fileInput = document.getElementById(`fileInputSolution${uniqueId}`);
+            const canvasElement = document.getElementById(`canvasSolution${uniqueId}`);
+            const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
+            
+            // Variáveis de estado para o desenho
+            let isDrawing = false;
+            let startPoint = null;
+
+            // Listener para o botão "Tirar Foto"
+            takePhotoButton.addEventListener('click', () => {
+                const video = document.getElementById(`videoSolution${uniqueId}`);
+                const canvas = document.getElementById(`canvasSolution${uniqueId}`);
+                startCamera(video, canvas, captureButton, photoContainer);
+            });
+
+            // Listener para o botão "Adicionar Arquivo"
+            addFileButton.addEventListener('click', () => {
+                if (fileInput) {
+                    stopCameraStream();
+                    fileInput.click();
+                }
+            });
+
+            // Listener para o botão "Capturar Foto"
+            captureButton.addEventListener('click', () => {
+                const video = document.getElementById(`videoSolution${uniqueId}`);
+                const canvas = document.getElementById(`canvasSolution${uniqueId}`);
+                
+                if (video && currentStream) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Salva a imagem original para redesenho futuro (se necessário)
+                    const originalImage = new Image();
+                    originalImage.src = canvas.toDataURL();
+                    canvas.originalImage = originalImage;
+
+                    photoContainer.classList.remove('hidden');
+                    stopCameraStream();
+                    showMessageBox('Foto capturada!');
+                } else {
+                    showMessageBox('Nenhuma câmera ativa para capturar.');
+                }
+            });
+
+            // Listener para o input de arquivo oculto
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const originalImage = new Image();
+                        originalImage.onload = () => {
+                            canvasElement.width = originalImage.width;
+                            canvasElement.height = originalImage.height;
+                            const ctx = canvasElement.getContext('2d');
+                            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                            ctx.drawImage(originalImage, 0, 0);
+                            canvasElement.originalImage = originalImage;
+                            photoContainer.classList.remove('hidden');
+                        };
+                        originalImage.src = e.target.result;
+                        showMessageBox('Arquivo adicionado!');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showMessageBox('Nenhum arquivo selecionado.');
+                }
+            });
+
+            // Lógica de desenho de seta para o canvas (atualizado para mouse e toque)
+            drawArrowButton.addEventListener('click', () => {
+                isDrawingArrow = !isDrawingArrow;
+                if (isDrawingArrow) {
+                    showMessageBox('Modo de desenho de seta ativado. Clique e arraste ou toque e arraste na foto!');
+                    canvasElement.style.cursor = 'crosshair';
+                } else {
+                    showMessageBox('Modo de desenho de seta desativado.');
+                    canvasElement.style.cursor = 'default';
+                }
+            });
+
+            canvasElement.addEventListener('mousedown', (e) => {
+                if (!isDrawingArrow) return;
+                isDrawing = true;
+                startPoint = getEventCoords(e, canvasElement);
+            });
+            canvasElement.addEventListener('touchstart', (e) => {
+                if (!isDrawingArrow) return;
+                e.preventDefault(); // Evita o scroll e o zoom
+                isDrawing = true;
+                startPoint = getEventCoords(e, canvasElement);
+            });
+
+            canvasElement.addEventListener('mouseup', (e) => {
+                if (!isDrawing || !isDrawingArrow) return;
+                isDrawing = false;
+                const endPoint = getEventCoords(e, canvasElement);
+                const ctx = canvasElement.getContext('2d');
+                drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                isDrawingArrow = false; // Desativa o modo de desenho após desenhar uma seta
+                canvasElement.style.cursor = 'default';
+                showMessageBox('Seta desenhada!');
+            });
+            canvasElement.addEventListener('touchend', (e) => {
+                if (!isDrawing || !isDrawingArrow) return;
+                isDrawing = false;
+                // O touchend não tem as coordenadas, então precisamos do último ponto registrado
+                // Para simplificar, o mouseup já está lidando com isso. Aqui, apenas desativamos.
+                const endPoint = getEventCoords(e.changedTouches[0], canvasElement);
+                const ctx = canvasElement.getContext('2d');
+                drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                isDrawingArrow = false;
+                canvasElement.style.cursor = 'default';
+                showMessageBox('Seta desenhada!');
+            });
+            canvasElement.addEventListener('touchcancel', () => {
+                isDrawing = false;
+                isDrawingArrow = false;
+                canvasElement.style.cursor = 'default';
+            });
+            
+            // Listener para o botão "Remover Foto"
+            removePhotoButton.addEventListener('click', () => {
+                const photoBlock = document.getElementById(`photoBlock${uniqueId}`);
+                if (photoBlock) {
+                    photoBlock.remove();
+                    photoCount--;
+                    addSolutionPhotoButton.disabled = false;
+                    addSolutionPhotoButton.textContent = `Adicionar Foto (${photoCount}/${maxPhotos})`;
+                    showMessageBox('Foto removida!');
+                }
+            });
+        }
+        
+        /**
+         * Carrega uma imagem no canvas.
+         */
+        function loadImageToCanvas(canvasElement, imageURL, photoContainer) {
+            const img = new Image();
+            img.onload = () => {
+                canvasElement.width = img.width;
+                canvasElement.height = img.height;
+                const ctx = canvasElement.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                canvasElement.originalImage = img;
+                photoContainer.classList.remove('hidden');
+            };
+            img.src = imageURL;
+        }
+
+        // Listener principal para o botão "Adicionar Foto" na seção 2
+        addSolutionPhotoButton.addEventListener('click', () => {
+            if (photoCount < maxPhotos) {
+                photoCount++;
+                const uniqueId = `SolutionPhoto${photoCount}`;
+
+                const photoBlockHTML = `
+                    <div id="photoBlock${uniqueId}" class="photo-block section-card">
+                        <div class="camera-controls no-print">
+                            <div class="camera-buttons-row">
+                                <button class="take-photo-button" data-id="${uniqueId}">Tirar Foto ${photoCount}</button>
+                                <input type="file" id="fileInputSolution${uniqueId}" accept="image/*" class="hidden">
+                                <button class="add-file-button bg-gray-500 hover:bg-gray-600" data-id="${uniqueId}">Adicionar Arquivo ${photoCount}</button>
+                            </div>
+                            <video id="videoSolution${uniqueId}" autoplay playsinline class="rounded-lg shadow-md hidden"></video>
+                            <button class="capture-button bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-all duration-200 hidden" data-id="${uniqueId}">Capturar Foto</button>
+                        </div>
+                        <div id="photoContainerSolution${uniqueId}" class="photo-container hidden">
+                            <canvas id="canvasSolution${uniqueId}" class="photo-canvas"></canvas>
+                            <textarea id="commentSolution${uniqueId}" class="photo-comment" rows="2" placeholder="Adicionar comentário para esta foto..."></textarea>
+                            <div class="flex flex-col gap-2 mt-2 action-buttons no-print">
+                                <button class="draw-arrow-button" data-canvas-id="canvasSolution${uniqueId}" data-id="${uniqueId}">Desenhar Seta</button>
+                                <button class="remove-photo-button" data-target-canvas="canvasSolution${uniqueId}" data-target-comment="commentSolution${uniqueId}" data-target-container="photoContainerSolution${uniqueId}" data-id="${uniqueId}">Remover Foto</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                solutionPhotosContainer.insertAdjacentHTML('beforeend', photoBlockHTML);
+                setupPhotoSectionListeners(uniqueId);
+                
+                addSolutionPhotoButton.textContent = `Adicionar Foto (${photoCount}/${maxPhotos})`;
+                if (photoCount === maxPhotos) {
+                    addSolutionPhotoButton.disabled = true;
+                    showMessageBox('Limite de 20 fotos atingido.');
+                }
+            } else {
+                showMessageBox('Limite de fotos atingido.');
+            }
+        });
+
+
+        // Listeners gerais para as seções de foto estáticas (problema e observações)
+        document.querySelectorAll('.take-photo-button').forEach(button => {
+            if (!button.dataset.id) {
+                button.addEventListener('click', (event) => {
+                    const targetVideoId = event.target.dataset.targetVideo;
+                    const targetCanvasId = event.target.dataset.targetCanvas;
+                    const targetContainerId = event.target.dataset.targetContainer;
+
+                    const video = document.getElementById(targetVideoId);
+                    const canvas = document.getElementById(targetCanvasId);
+                    const captureBtn = document.querySelector(`.capture-button[data-video-id="${targetVideoId}"]`);
+                    const photoContainer = document.getElementById(targetContainerId);
+
+                    startCamera(video, canvas, captureBtn, photoContainer);
+                });
+            }
+        });
+
+        document.querySelectorAll('.capture-button').forEach(button => {
+            if (!button.dataset.id) {
+                button.addEventListener('click', (event) => {
+                    if (activeVideoElement && currentStream) {
+                        const targetVideoId = event.target.dataset.videoId;
+                        const targetCanvasId = event.target.dataset.canvasId;
+                        const targetContainerId = event.target.dataset.targetContainer;
+
+                        const video = document.getElementById(targetVideoId);
+                        const canvas = document.getElementById(targetCanvasId);
+                        const photoContainer = document.getElementById(targetContainerId);
+
+                        const context = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        // Salva a imagem original para redesenho futuro (se necessário)
+                        const originalImage = new Image();
+                        originalImage.src = canvas.toDataURL();
+                        canvas.originalImage = originalImage;
+                        
+                        photoContainer.classList.remove('hidden');
+                        stopCameraStream();
+                        showMessageBox('Foto capturada!');
+                    } else {
+                        showMessageBox('Nenhuma câmera ativa para capturar.');
+                    }
+                });
+            }
+        });
+        
+        document.querySelectorAll('.add-file-button').forEach(button => {
+            if (!button.dataset.id) {
+                button.addEventListener('click', (event) => {
+                    const targetInputId = event.target.dataset.targetInput;
+                    const fileInput = document.getElementById(targetInputId);
+                    if (fileInput) {
+                        stopCameraStream();
+                        fileInput.click();
+                    }
+                });
+            }
+        });
+
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            if (!input.dataset.id) {
+                input.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const targetCanvasId = event.target.dataset.targetCanvas;
+                        const targetContainerId = event.target.dataset.targetContainer;
+                        const canvasElement = document.getElementById(targetCanvasId);
+                        const photoContainer = document.getElementById(targetContainerId);
+
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const originalImage = new Image();
+                            originalImage.onload = () => {
+                                canvasElement.width = originalImage.width;
+                                canvasElement.height = originalImage.height;
+                                const ctx = canvasElement.getContext('2d');
+                                ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                                ctx.drawImage(originalImage, 0, 0);
+                                canvasElement.originalImage = originalImage; // Salva a imagem original no canvas
+                                photoContainer.classList.remove('hidden');
+                            };
+                            originalImage.src = e.target.result;
+                            showMessageBox('Arquivo adicionado!');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        showMessageBox('Nenhum arquivo selecionado.');
+                    }
+                });
+            }
+        });
+        
+        document.querySelectorAll('.draw-arrow-button').forEach(button => {
+            if (!button.dataset.id) {
+                const canvasId = button.dataset.canvasId;
+                const canvas = document.getElementById(canvasId);
+                
+                // Variáveis de estado para o desenho
+                let isDrawing = false;
+                let startPoint = null;
+
+                button.addEventListener('click', () => {
+                    isDrawingArrow = !isDrawingArrow;
+                    if (isDrawingArrow) {
+                        showMessageBox('Modo de desenho de seta ativado. Clique e arraste ou toque e arraste na foto!');
+                        canvas.style.cursor = 'crosshair';
+                    } else {
+                        showMessageBox('Modo de desenho de seta desativado.');
+                        canvas.style.cursor = 'default';
+                    }
+                });
+
+                canvas.addEventListener('mousedown', (e) => {
+                    if (!isDrawingArrow) return;
+                    isDrawing = true;
+                    startPoint = getEventCoords(e, canvas);
+                });
+                canvas.addEventListener('touchstart', (e) => {
+                    if (!isDrawingArrow) return;
+                    e.preventDefault();
+                    isDrawing = true;
+                    startPoint = getEventCoords(e, canvas);
+                });
+
+                canvas.addEventListener('mouseup', (e) => {
+                    if (!isDrawing || !isDrawingArrow) return;
+                    isDrawing = false;
+                    const endPoint = getEventCoords(e, canvas);
+                    const ctx = canvas.getContext('2d');
+                    drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
+                    showMessageBox('Seta desenhada!');
+                });
+                canvas.addEventListener('touchend', (e) => {
+                    if (!isDrawing || !isDrawingArrow) return;
+                    isDrawing = false;
+                    const endPoint = getEventCoords(e.changedTouches[0], canvas);
+                    const ctx = canvas.getContext('2d');
+                    drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
+                    showMessageBox('Seta desenhada!');
+                });
+                canvas.addEventListener('touchcancel', () => {
+                    isDrawing = false;
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
+                });
+            }
+        });
+
+        document.querySelectorAll('.remove-photo-button').forEach(button => {
+            if (!button.dataset.id) {
+                button.addEventListener('click', (event) => {
+                    const targetCanvasId = event.target.dataset.targetCanvas;
+                    const targetCommentId = event.target.dataset.targetComment;
+                    const targetContainerId = event.target.dataset.targetContainer;
+
+                    const canvasElement = document.getElementById(targetCanvasId);
+                    const commentElement = document.getElementById(targetCommentId);
+                    const photoContainer = document.getElementById(targetContainerId);
+                    
+                    const ctx = canvasElement.getContext('2d');
+                    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                    commentElement.value = '';
+                    photoContainer.classList.add('hidden');
+                    showMessageBox('Foto removida!');
+                });
+            }
+        });
+
+        document.getElementById('generateReportButton').addEventListener('click', () => {
+            stopCameraStream();
+            window.print();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('reportDate').value = `${year}-${month}-${day}`;
+        });
+    </script>
+</body>
+</html>

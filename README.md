@@ -385,25 +385,59 @@
          * @param {number} toY - Coordenada Y final.
          */
         function drawArrow(ctx, fromX, fromY, toX, toY) {
-            const headlen = 15; // Comprimento da ponta da seta
+            // Nova lógica para garantir que a ponta da seta seja sempre visível e não coberta pela linha.
+            const headlen = 80; // Tamanho da ponta da seta (dobrado)
+            const lineWidth = 20; // Espessura da linha
             const angle = Math.atan2(toY - fromY, toX - fromX);
-            
+
+            // Calcula o ponto final da linha (antes da ponta da seta) para evitar sobreposição
+            const lineEndX = toX - (lineWidth * 0.5 * Math.cos(angle));
+            const lineEndY = toY - (lineWidth * 0.5 * Math.sin(angle));
+
+            // Desenha a linha principal
             ctx.strokeStyle = '#ef4444'; // Cor da seta (vermelho)
-            ctx.lineWidth = 5;
+            ctx.lineWidth = lineWidth;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(fromX, fromY);
-            ctx.lineTo(toX, toY);
+            ctx.lineTo(lineEndX, lineEndY);
             ctx.stroke();
 
-            // Desenha a ponta da seta
+            // Desenha a ponta da seta como um triângulo preenchido
             ctx.beginPath();
             ctx.moveTo(toX, toY);
-            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            // Pontos da base do triângulo, calculados para ficarem na frente da linha
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 7), toY - headlen * Math.sin(angle - Math.PI / 7));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 7), toY - headlen * Math.sin(angle + Math.PI / 7));
             ctx.closePath();
             ctx.fillStyle = '#ef4444';
             ctx.fill();
+        }
+
+        /**
+         * Obtém as coordenadas X e Y de um evento (mouse ou toque).
+         * @param {Event} e - O evento de mouse ou toque.
+         * @param {HTMLCanvasElement} canvas - O elemento canvas.
+         * @returns {{x: number, y: number}} As coordenadas.
+         */
+        function getEventCoords(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
         }
 
         /**
@@ -456,7 +490,10 @@
             const fileInput = document.getElementById(`fileInputSolution${uniqueId}`);
             const canvasElement = document.getElementById(`canvasSolution${uniqueId}`);
             const photoContainer = document.getElementById(`photoContainerSolution${uniqueId}`);
-            const originalImage = new Image();
+            
+            // Variáveis de estado para o desenho
+            let isDrawing = false;
+            let startPoint = null;
 
             // Listener para o botão "Tirar Foto"
             takePhotoButton.addEventListener('click', () => {
@@ -484,7 +521,11 @@
                     const context = canvas.getContext('2d');
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
                     
-                    originalImage.src = canvas.toDataURL(); // Salva a imagem original
+                    // Salva a imagem original para redesenho futuro (se necessário)
+                    const originalImage = new Image();
+                    originalImage.src = canvas.toDataURL();
+                    canvas.originalImage = originalImage;
+
                     photoContainer.classList.remove('hidden');
                     stopCameraStream();
                     showMessageBox('Foto capturada!');
@@ -499,12 +540,14 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
+                        const originalImage = new Image();
                         originalImage.onload = () => {
                             canvasElement.width = originalImage.width;
                             canvasElement.height = originalImage.height;
                             const ctx = canvasElement.getContext('2d');
                             ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                             ctx.drawImage(originalImage, 0, 0);
+                            canvasElement.originalImage = originalImage;
                             photoContainer.classList.remove('hidden');
                         };
                         originalImage.src = e.target.result;
@@ -516,37 +559,56 @@
                 }
             });
 
-            // Lógica de desenho de seta para o canvas
+            // Lógica de desenho de seta para o canvas (atualizado para mouse e toque)
             drawArrowButton.addEventListener('click', () => {
-                isDrawingArrow = true;
-                showMessageBox('Modo de desenho de seta ativado. Clique e arraste na foto!');
-                canvasElement.style.cursor = 'crosshair';
+                isDrawingArrow = !isDrawingArrow;
+                if (isDrawingArrow) {
+                    showMessageBox('Modo de desenho de seta ativado. Clique e arraste ou toque e arraste na foto!');
+                    canvasElement.style.cursor = 'crosshair';
+                } else {
+                    showMessageBox('Modo de desenho de seta desativado.');
+                    canvasElement.style.cursor = 'default';
+                }
             });
 
             canvasElement.addEventListener('mousedown', (e) => {
                 if (!isDrawingArrow) return;
-                const rect = canvasElement.getBoundingClientRect();
-                const scaleX = canvasElement.width / rect.width;
-                const scaleY = canvasElement.height / rect.height;
-                startPoint = { 
-                    x: (e.clientX - rect.left) * scaleX, 
-                    y: (e.clientY - rect.top) * scaleY 
-                };
+                isDrawing = true;
+                startPoint = getEventCoords(e, canvasElement);
+            });
+            canvasElement.addEventListener('touchstart', (e) => {
+                if (!isDrawingArrow) return;
+                e.preventDefault(); // Evita o scroll e o zoom
+                isDrawing = true;
+                startPoint = getEventCoords(e, canvasElement);
             });
 
             canvasElement.addEventListener('mouseup', (e) => {
-                if (!isDrawingArrow) return;
-                const rect = canvasElement.getBoundingClientRect();
-                const scaleX = canvasElement.width / rect.width;
-                const scaleY = canvasElement.height / rect.height;
-                const endX = (e.clientX - rect.left) * scaleX;
-                const endY = (e.clientY - rect.top) * scaleY;
-
+                if (!isDrawing || !isDrawingArrow) return;
+                isDrawing = false;
+                const endPoint = getEventCoords(e, canvasElement);
                 const ctx = canvasElement.getContext('2d');
-                drawArrow(ctx, startPoint.x, startPoint.y, endX, endY);
+                drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                isDrawingArrow = false; // Desativa o modo de desenho após desenhar uma seta
+                canvasElement.style.cursor = 'default';
+                showMessageBox('Seta desenhada!');
+            });
+            canvasElement.addEventListener('touchend', (e) => {
+                if (!isDrawing || !isDrawingArrow) return;
+                isDrawing = false;
+                // O touchend não tem as coordenadas, então precisamos do último ponto registrado
+                // Para simplificar, o mouseup já está lidando com isso. Aqui, apenas desativamos.
+                const endPoint = getEventCoords(e.changedTouches[0], canvasElement);
+                const ctx = canvasElement.getContext('2d');
+                drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
                 isDrawingArrow = false;
                 canvasElement.style.cursor = 'default';
                 showMessageBox('Seta desenhada!');
+            });
+            canvasElement.addEventListener('touchcancel', () => {
+                isDrawing = false;
+                isDrawingArrow = false;
+                canvasElement.style.cursor = 'default';
             });
             
             // Listener para o botão "Remover Foto"
@@ -562,7 +624,9 @@
             });
         }
         
-        // Função para carregar uma imagem no canvas
+        /**
+         * Carrega uma imagem no canvas.
+         */
         function loadImageToCanvas(canvasElement, imageURL, photoContainer) {
             const img = new Image();
             img.onload = () => {
@@ -570,6 +634,7 @@
                 canvasElement.height = img.height;
                 const ctx = canvasElement.getContext('2d');
                 ctx.drawImage(img, 0, 0);
+                canvasElement.originalImage = img;
                 photoContainer.classList.remove('hidden');
             };
             img.src = imageURL;
@@ -717,12 +782,15 @@
             if (!button.dataset.id) {
                 const canvasId = button.dataset.canvasId;
                 const canvas = document.getElementById(canvasId);
-                let startPoint = {};
+                
+                // Variáveis de estado para o desenho
+                let isDrawing = false;
+                let startPoint = null;
 
                 button.addEventListener('click', () => {
                     isDrawingArrow = !isDrawingArrow;
                     if (isDrawingArrow) {
-                        showMessageBox('Modo de desenho de seta ativado. Clique e arraste na foto!');
+                        showMessageBox('Modo de desenho de seta ativado. Clique e arraste ou toque e arraste na foto!');
                         canvas.style.cursor = 'crosshair';
                     } else {
                         showMessageBox('Modo de desenho de seta desativado.');
@@ -732,25 +800,40 @@
 
                 canvas.addEventListener('mousedown', (e) => {
                     if (!isDrawingArrow) return;
-                    const rect = canvas.getBoundingClientRect();
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
-                    startPoint = { 
-                        x: (e.clientX - rect.left) * scaleX, 
-                        y: (e.clientY - rect.top) * scaleY 
-                    };
+                    isDrawing = true;
+                    startPoint = getEventCoords(e, canvas);
+                });
+                canvas.addEventListener('touchstart', (e) => {
+                    if (!isDrawingArrow) return;
+                    e.preventDefault();
+                    isDrawing = true;
+                    startPoint = getEventCoords(e, canvas);
                 });
 
                 canvas.addEventListener('mouseup', (e) => {
-                    if (!isDrawingArrow) return;
-                    const rect = canvas.getBoundingClientRect();
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
-                    const endX = (e.clientX - rect.left) * scaleX;
-                    const endY = (e.clientY - rect.top) * scaleY;
-
+                    if (!isDrawing || !isDrawingArrow) return;
+                    isDrawing = false;
+                    const endPoint = getEventCoords(e, canvas);
                     const ctx = canvas.getContext('2d');
-                    drawArrow(ctx, startPoint.x, startPoint.y, endX, endY);
+                    drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
+                    showMessageBox('Seta desenhada!');
+                });
+                canvas.addEventListener('touchend', (e) => {
+                    if (!isDrawing || !isDrawingArrow) return;
+                    isDrawing = false;
+                    const endPoint = getEventCoords(e.changedTouches[0], canvas);
+                    const ctx = canvas.getContext('2d');
+                    drawArrow(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
+                    showMessageBox('Seta desenhada!');
+                });
+                canvas.addEventListener('touchcancel', () => {
+                    isDrawing = false;
+                    isDrawingArrow = false;
+                    canvas.style.cursor = 'default';
                 });
             }
         });
